@@ -13,3 +13,7 @@ geo_pfas_ins
   D:\conda_envs\geo_pfas_ins
 
   conda activate D:\conda_envs\geo_pfas_ins
+
+  #project directory
+  G:\Shared drives\P drive\1604-0 PFAS insurance\lqm work
+  
