@@ -15,7 +15,7 @@ import numpy as np
 from shapely.geometry import Point
 #import glob
 
-run = "run2"  # Change this to your desired run name
+run = "run3_inferCoordsGPKG"  # Change this to your desired run name
 
 # units
 units_csv_file_path = r"G:\Shared drives\P drive\1604-0 PFAS insurance\lqm work\qgis\data\pfas\CIP\CIPpfas2025.csv"  
@@ -509,8 +509,23 @@ def all_infer_missing_coords(infer_coords_file_path, infer_coords_output_csv):
     print("\nSummary of Coordinate Inference Results:")
     print(summary_df.to_string(index=False))
 
-    df.to_csv(infer_coords_output_csv, index=False)
-    print("Saved to", infer_coords_output_csv)   
+    # save as gpkg change
+    # df.to_csv(infer_coords_output_csv, index=False)
+    # print("Saved to", infer_coords_output_csv)   
+    
+        # Convert to GeoDataFrame
+    df_with_coords = df.dropna(subset=['Latitude', 'Longitude'])
+    geometry = [Point(xy) for xy in zip(df_with_coords['Longitude'], df_with_coords['Latitude'])]
+    gdf = gpd.GeoDataFrame(df_with_coords, geometry=geometry, crs='EPSG:4326')
+    
+    # Save as both GPKG and CSV
+    infer_coords_output_gpkg = infer_coords_output_csv.replace('.csv', '.gpkg')
+    gdf.to_file(infer_coords_output_gpkg, driver='GPKG')
+    gdf.to_csv(infer_coords_output_csv, index=False)
+    print("Saved to", infer_coords_output_gpkg)
+    print("Saved to", infer_coords_output_csv)
+
+    # Save the summary dataframe to a separate CSV
 
     # Save the summary dataframe to a separate CSV
     summary_csv = os.path.join(infer_coords_output_folder, "CIP_coordinate_inference_summary1.csv")
