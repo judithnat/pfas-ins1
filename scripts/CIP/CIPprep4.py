@@ -15,7 +15,7 @@ import numpy as np
 from shapely.geometry import Point
 #import glob
 
-run = "run3_inferCoordsGPKG"  # Change this to your desired run name
+run = "run4_manualCoordsGPKG"  # Change this to your desired run name
 
 # units
 units_csv_file_path = r"G:\Shared drives\P drive\1604-0 PFAS insurance\lqm work\qgis\data\pfas\CIP\CIPpfas2025.csv"  
@@ -649,8 +649,21 @@ def all_manual_add_coords(manualcoords_main_csv_path, manualcoords_missing_coord
     print("\nSummary of manual coordinate updates:")
     print(summary_df.to_string(index=False))
 
+    # change gpkg
     # Save the updated DataFrame to a new CSV file
-    df.to_csv(manualcoords_output_csv, index=False)
+    #df.to_csv(manualcoords_output_csv, index=False)
+    
+        # Convert to GeoDataFrame
+    df_with_coords = df.dropna(subset=['Latitude', 'Longitude'])
+    geometry = [Point(xy) for xy in zip(df_with_coords['Longitude'], df_with_coords['Latitude'])]
+    gdf = gpd.GeoDataFrame(df_with_coords, geometry=geometry, crs='EPSG:4326')
+    
+    # Save as both GPKG and CSV
+    manualcoords_output_gpkg = manualcoords_output_csv.replace('.csv', '.gpkg')
+    gdf.to_file(manualcoords_output_gpkg, driver='GPKG')
+    gdf.to_csv(manualcoords_output_csv, index=False)
+    print("Saved to", manualcoords_output_gpkg)
+    print("Saved to", manualcoords_output_csv)
 
     # Save the summary dataframe to a separate CSV
     summary_df.to_csv(manualcoords_summary_csv, index=False)
